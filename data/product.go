@@ -2,6 +2,7 @@ package data
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 )
@@ -33,6 +34,27 @@ func AddProduct(p *Product) {
 	productList = append(productList, p)
 }
 
+func UpdateProduct(p *Product, id int) (*Product, error) {
+	prodIndex := findProduct(id)
+
+	if prodIndex == -1 {
+		return nil, NotFoudError
+	}
+
+	p.ID = id
+	productList[prodIndex] = p
+	return productList[prodIndex], nil
+}
+
+func findProduct(id int) int {
+	for index, value := range productList {
+		if value.ID == id {
+			return index
+		}
+	}
+	return -1
+}
+
 func getNextid() int {
 	lp := productList[len(productList)-1]
 	return lp.ID + 1
@@ -43,6 +65,8 @@ func (p *Products) JsonEncoder(rw io.Writer) error {
 	return je.Encode(p)
 
 }
+
+var NotFoudError error = fmt.Errorf("value note found")
 
 var productList = []*Product{
 	&Product{

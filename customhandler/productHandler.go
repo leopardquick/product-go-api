@@ -3,6 +3,8 @@ package customhandler
 import (
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 
 	"exaple.com/Product/data"
 )
@@ -23,6 +25,25 @@ func (p *ProductHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		p.postRequest(rw, r)
+		return
+	}
+
+	if r.Method == http.MethodPut {
+		p.l.Println("Put Methode")
+
+		reg := regexp.MustCompile(`[0-9]+`)
+		result := reg.FindAllStringSubmatch(r.URL.Path, -1)
+
+		if len(result) != 1 {
+			http.Error(rw, "invalid url", http.StatusBadRequest)
+			return
+		}
+
+		stringid := result[0][0]
+
+		idint, _ := strconv.Atoi(stringid)
+
+		p.putRequest(idint, rw, r)
 		return
 	}
 
@@ -57,4 +78,23 @@ func (p *ProductHandler) postRequest(rw http.ResponseWriter, r *http.Request) {
 
 	data.AddProduct(prod)
 
+}
+
+/*for put methode*/
+
+func (p *ProductHandler) putRequest(id int, rw http.ResponseWriter, r *http.Request) {
+	prod := &data.Product{}
+	err := prod.FromJson(r.Body)
+	if err != nil {
+		http.Error(rw, "cannot martial data", http.StatusBadRequest)
+		return
+	}
+
+	prob, err := data.UpdateProduct(prod, id)
+
+	if err != nil {
+		http.Error(rw, "not found", http.StatusNotFound)
+	}
+
+	p.l.Println(prob)
 }

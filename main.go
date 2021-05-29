@@ -20,7 +20,7 @@ func main() {
 
 	sm := http.NewServeMux()
 	sm.Handle("/", hh)
-	sm.Handle("/product", ph)
+	sm.Handle("/product/", ph)
 
 	server := &http.Server{
 		Addr:         ":9090",
