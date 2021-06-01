@@ -73,6 +73,13 @@ func (p *ProductHandler) MiddlewareProductValidation(next http.Handler) http.Han
 			http.Error(rw, "cannot martial data", http.StatusBadRequest)
 			return
 		}
+
+		validaionError := prod.Validation()
+
+		if validaionError != nil {
+			http.Error(rw, validaionError.Error(), http.StatusBadRequest)
+			return
+		}
 		ctx := context.WithValue(r.Context(), keyProduct{}, prod)
 		req := r.WithContext(ctx)
 		next.ServeHTTP(rw, req)
