@@ -10,21 +10,32 @@ import (
 	"time"
 
 	"exaple.com/Product/customhandler"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
 
-	hh := customhandler.NewHome(l)
+	//hh := customhandler.NewHome(l)
 	ph := customhandler.NewProduct(l)
 
-	sm := http.NewServeMux()
-	sm.Handle("/", hh)
-	sm.Handle("/product/", ph)
+	sm := mux.NewRouter()
+
+	getRoute := sm.Methods(http.MethodGet).Subrouter()
+	getRoute.HandleFunc("/products", ph.GetRequest)
+
+	putRoute := sm.Methods(http.MethodPut).Subrouter()
+	putRoute.Use(ph.MiddlewareProductValidation)
+	putRoute.HandleFunc("/product/{id:[0-9]+}", ph.PutRequest)
+
+	postRoute := sm.Methods(http.MethodPost).Subrouter()
+	postRoute.Use(ph.MiddlewareProductValidation)
+	postRoute.HandleFunc("/product", ph.PostRequest)
 
 	server := &http.Server{
 		Addr:         ":9090",
 		Handler:      sm,
+		ErrorLog:     l,
 		ReadTimeout:  20 * time.Second,
 		WriteTimeout: 20 * time.Second,
 	}
