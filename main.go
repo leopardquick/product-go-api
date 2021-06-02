@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"exaple.com/Product/customhandler"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -19,8 +20,10 @@ func main() {
 	//hh := customhandler.NewHome(l)
 	ph := customhandler.NewProduct(l)
 
+	//for creating serve mux for our Api
 	sm := mux.NewRouter()
 
+	//for creating subrouer for our api
 	getRoute := sm.Methods(http.MethodGet).Subrouter()
 	getRoute.HandleFunc("/products", ph.GetRequest)
 
@@ -31,6 +34,11 @@ func main() {
 	postRoute := sm.Methods(http.MethodPost).Subrouter()
 	postRoute.Use(ph.MiddlewareProductValidation)
 	postRoute.HandleFunc("/product", ph.PostRequest)
+
+	// serve docs to server with redoc middle where
+	sh := middleware.Redoc(middleware.RedocOpts{SpecURL: "/swagger.yaml"}, nil)
+	getRoute.Handle("/docs", sh)
+	getRoute.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	server := &http.Server{
 		Addr:         ":9090",

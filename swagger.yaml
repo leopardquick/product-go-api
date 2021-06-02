@@ -1,0 +1,87 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  Product:
+    properties:
+      description:
+        type: string
+        x-go-name: Description
+      id:
+        format: int64
+        type: integer
+        x-go-name: ID
+      name:
+        type: string
+        x-go-name: Name
+      price:
+        format: float
+        type: number
+        x-go-name: Price
+      sku:
+        type: string
+        x-go-name: SKU
+    type: object
+    x-go-package: exaple.com/Product/data
+info:
+  description: |-
+    the purpose of this application is to provide an application
+    that is using plain go code to define an API
+
+    This should demonstrate all the possible comment annotations
+    that are available to turn go code into a fully compliant swagger 2.0 spec
+  title: Product API.
+paths:
+  /product:
+    post:
+      description: Post the product to the database
+      operationId: postProduct
+      parameters:
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/Product'
+      tags:
+      - postProduct
+  /product/{id}:
+    put:
+      description: |-
+        update the product from the given id
+        response:
+        200 : "ok succefully"
+      operationId: updateProduct
+      parameters:
+      - description: id to find the product
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+        x-go-name: ID
+      - in: body
+        name: Body
+        schema:
+          $ref: '#/definitions/Product'
+      tags:
+      - updateproduct
+  /products:
+    get:
+      description: Return list of products
+      operationId: listProducts
+      responses:
+        "200":
+          $ref: '#/responses/productResponse'
+      tags:
+      - products
+produces:
+- application/json
+responses:
+  productResponse:
+    description: A list of product returns in the response
+    schema:
+      items:
+        $ref: '#/definitions/Product'
+      type: array
+schemes:
+- http
+swagger: "2.0"

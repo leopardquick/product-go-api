@@ -1,14 +1,54 @@
+// Package classification Product API.
+//
+// the purpose of this application is to provide an application
+// that is using plain go code to define an API
+//
+// This should demonstrate all the possible comment annotations
+// that are available to turn go code into a fully compliant swagger 2.0 spec
+//
+// Terms Of Service:
+//
+//
+//     Schemes: http
+//     BasePath: /
+//     Consumes:
+//     - application/json
+//
+//     Produces:
+//     - application/json
+//
+//
+// swagger:meta
 package customhandler
 
 import (
 	"context"
 	"log"
 	"net/http"
-	"strconv"
 
 	"exaple.com/Product/data"
-	"github.com/gorilla/mux"
 )
+
+//A list of product returns in the response
+//swagger:response productResponse
+type productResponseWrapper struct {
+	//in: body
+	Body []data.Product
+}
+
+//swagger:parameters updateProduct
+type productParamsWrapper struct {
+	//id to find the product
+	//in : path
+	ID int `json:"id"`
+}
+
+//swagger:parameters updateProduct postProduct
+type productPutRequireWrapper struct {
+	//in : body
+	//parameter in body required for update
+	Body data.Product
+}
 
 type ProductHandler struct {
 	l *log.Logger
@@ -22,48 +62,10 @@ func (p *ProductHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusServiceUnavailable)
 }
 
-/*
-to handle get request
-*/
-func (p *ProductHandler) GetRequest(rw http.ResponseWriter, r *http.Request) {
-	lp := data.GetProduct()
-	err := lp.JsonEncoder(rw)
-	if err != nil {
-		http.Error(rw, "no data", http.StatusNotFound)
-	}
-}
-
-/*
-to handle post request
-*/
-
-func (p *ProductHandler) PostRequest(rw http.ResponseWriter, r *http.Request) {
-
-	p.l.Println("post methode")
-	prod := r.Context().Value(keyProduct{}).(*data.Product)
-	data.AddProduct(prod)
-
-}
-
-/*for put methode*/
-
-func (p *ProductHandler) PutRequest(rw http.ResponseWriter, r *http.Request) {
-	val := mux.Vars(r)
-	id, withError := strconv.Atoi(val["id"])
-
-	if withError != nil {
-		http.Error(rw, "unable to get id", http.StatusBadRequest)
-	}
-	prod := r.Context().Value(keyProduct{}).(*data.Product)
-	prob, err := data.UpdateProduct(prod, id)
-	if err != nil {
-		http.Error(rw, "not found", http.StatusInternalServerError)
-	}
-	p.l.Println(prob)
-}
-
+// key for context
 type keyProduct struct{}
 
+//middleware for get data and validation
 func (p *ProductHandler) MiddlewareProductValidation(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		p.l.Println("pass through middleware")
