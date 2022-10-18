@@ -9,8 +9,8 @@ import (
 	"os/signal"
 	"time"
 
+	authorizationhandler "exaple.com/Product/authorizationHandler"
 	"exaple.com/Product/customhandler"
-	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -20,11 +20,23 @@ func main() {
 	//hh := customhandler.NewHome(l)
 	ph := customhandler.NewProduct(l)
 
+	authHander := authorizationhandler.NewAuthHander(l)
+
 	//for creating serve mux for our Api
 	sm := mux.NewRouter()
 
+	authroute := sm.Methods(http.MethodGet).Subrouter()
+	authroute.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		if token, error := authHander.GenerateJWTToken(); error != nil {
+			fmt.Fprintf(w, error.Error())
+		} else {
+			fmt.Fprintf(w, token)
+		}
+	})
+
 	//for creating subrouer for our api
 	getRoute := sm.Methods(http.MethodGet).Subrouter()
+	getRoute.Use(authHander.IsAuthorized)
 	getRoute.HandleFunc("/products", ph.GetRequest)
 
 	putRoute := sm.Methods(http.MethodPut).Subrouter()
@@ -36,9 +48,9 @@ func main() {
 	postRoute.HandleFunc("/product", ph.PostRequest)
 
 	// serve docs to server with redoc middle where
-	sh := middleware.Redoc(middleware.RedocOpts{SpecURL: "/swagger.yaml"}, nil)
-	getRoute.Handle("/docs", sh)
-	getRoute.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+	// sh := middleware.Redoc(middleware.RedocOpts{SpecURL: "/swagger.yaml"}, nil)
+	// getRoute.Handle("/docs", sh)
+	// getRoute.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	server := &http.Server{
 		Addr:         ":9090",

@@ -9,10 +9,11 @@ import (
 )
 
 // for put request
-//swagger:route PUT /product/{id} updateproduct updateProduct
-//update the product from the given id
-//response:
+// update the product from the given id
+// response:
 // 200 : "ok succefully"
+//
+//swagger:route PUT /product/{id} updateproduct updateProduct
 func (p *ProductHandler) PutRequest(rw http.ResponseWriter, r *http.Request) {
 	val := mux.Vars(r)
 	id, withError := strconv.Atoi(val["id"])

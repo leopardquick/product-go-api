@@ -6,8 +6,9 @@ import (
 	"exaple.com/Product/data"
 )
 
+// Post the product to the database
+//
 //swagger:route POST /product postProduct postProduct
-//Post the product to the database
 func (p *ProductHandler) PostRequest(rw http.ResponseWriter, r *http.Request) {
 	p.l.Println("post methode")
 	prod := r.Context().Value(keyProduct{}).(*data.Product)

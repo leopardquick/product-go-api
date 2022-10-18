@@ -8,15 +8,13 @@
 //
 // Terms Of Service:
 //
+//	Schemes: http
+//	BasePath: /
+//	Consumes:
+//	- application/json
 //
-//     Schemes: http
-//     BasePath: /
-//     Consumes:
-//     - application/json
-//
-//     Produces:
-//     - application/json
-//
+//	Produces:
+//	- application/json
 //
 // swagger:meta
 package customhandler
@@ -29,7 +27,8 @@ import (
 	"exaple.com/Product/data"
 )
 
-//A list of product returns in the response
+// A list of product returns in the response
+//
 //swagger:response productResponse
 type productResponseWrapper struct {
 	//in: body
@@ -65,7 +64,7 @@ func (p *ProductHandler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // key for context
 type keyProduct struct{}
 
-//middleware for get data and validation
+// middleware for get data and validation
 func (p *ProductHandler) MiddlewareProductValidation(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		p.l.Println("pass through middleware")
