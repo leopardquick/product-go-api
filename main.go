@@ -53,7 +53,7 @@ func main() {
 	// getRoute.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	server := &http.Server{
-		Addr:         ":9090",
+		Addr:         ":8080",
 		Handler:      sm,
 		ErrorLog:     l,
 		ReadTimeout:  20 * time.Second,
